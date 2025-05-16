@@ -1,0 +1,81 @@
+﻿@model lab2_gym.Models.Subscription
+@{
+	ViewBag.Title = Model.Id == 0 ? "Новий абонемент" : "Редагування абонемента";
+	var gyms = ViewBag.Gyms as List<lab2_gym.Models.Gym>;
+	var visitors = ViewBag.Visitors as List<lab2_gym.Models.Visitor>;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+	<h2 class="mb-0">@ViewBag.Title</h2>
+	<a asp-controller="Visitors" asp-action="Index" class="btn btn-primary">
+		Перейти до списку відвідувачів
+	</a>
+</div>
+
+<form asp-controller="Subscription" asp-action="Index" asp-route-id="" method="post">
+	<input type="hidden" asp-for="Id" />
+
+	<div>
+		<label>Відвідувач:</label>
+		<select asp-for="VisitorId" class="form-control mb-3" asp-items="@(new SelectList(visitors, "Id", "FullName"))">
+			<option value="">-- Виберіть відвідувача --</option>
+		</select>
+
+		<label>Зал:</label>
+		<select asp-for="GymId" class="form-control mb-3" asp-items="@(new SelectList(gyms, "Id", "Name"))">
+			<option value="">-- Виберіть зал --</option>
+		</select>
+	</div>
+
+	<div class="mb-3">
+		<label>Дата початку:</label>
+		<input asp-for="StartDate" type="date" class="form-control" value="@(Model.Id == 0 ? DateTime.Today.ToString("yyyy-MM-dd") : Model.StartDate.ToString("yyyy-MM-dd"))" />
+	</div>
+
+	<div class="mb-3">
+		<label>Дата завершення:</label>
+		<input asp-for="EndDate" type="date" class="form-control" value="@(Model.Id == 0 ? DateTime.Today.AddMonths(1).ToString("yyyy-MM-dd") : Model.EndDate.ToString("yyyy-MM-dd"))" />
+	</div>
+
+	<br />
+	<button type="submit" class="btn btn-primary">
+		@(Model.Id == 0 ? "Додати" : "Оновити")
+	</button>
+</form>
+
+
+@if (Model.Id != 0)
+{
+	<a asp-controller="Subscription" asp-action="Index" asp-route-id="" class="btn btn-secondary mt-2">Скасувати</a>
+}
+
+<hr />
+<h2>Список абонементів</h2>
+<div class="subscription-list">
+	<table class="table table-dark-text">
+		<thead>
+			<tr>
+				<th>Відвідувач</th>
+				<th>Зал</th>
+				<th>Початок</th>
+				<th>Завершення</th>
+				<th>Дії</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var sub in ViewBag.Subscriptions as List<lab2_gym.Models.Subscription>)
+			{
+				<tr>
+					<td>@sub.Visitor.FullName</td>
+					<td>@sub.Gym.Name</td>
+					<td>@sub.StartDate.ToShortDateString()</td>
+					<td>@sub.EndDate.ToShortDateString()</td>
+					<td>
+						<a asp-action="Index" asp-route-id="@sub.Id" class="btn btn-sm btn-warning">Редагувати</a>
+						<a asp-action="Delete" asp-route-id="@sub.Id" class="btn btn-sm btn-danger">Видалити</a>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
